@@ -69,15 +69,50 @@ let io = require('socket.io')(server)
 
 let clientList = [];
 let Client = function(id) {
-    this.id = id;
-    clientList.push(this);
+    if (!checkForClient(id)) {
+        this.id = id;
+        this.mouseX = NaN;
+        this.mouseY = NaN;
+
+        clientList.push(this);
+    }
 };
 
+function checkForClient(id) {
+    clientList.map(function(client) {
+        if (client.id === id) {return true;}
+    });
+}
+
+function removeClient(id) {
+    clientList.map(function(client, index) {
+        if (client.id === id) {
+            clientList.splice(index, 1);
+        }
+    });
+}
+
 io.on('connection', function(socket) {
+
     console.log('A user connected!');
     let client = new Client(socket.id);
+    socket.emit('setOwnID', socket.id);
+    socket.emit('clientListUpdate', clientList);
+
+    socket.on('emitOwnMovement', function(x, y) {
+        clientList.map(function(client) {
+            if (client.id === socket.id) {
+                client.mouseX = x;
+                client.mouseY = y;
+            }
+        });
+
+        socket.emit('clientListUpdate', clientList);
+    });
+
     socket.on('disconnect', function() {
         console.log('A user disconnected!')
+        removeClient(socket.id);
     });
 });
 
