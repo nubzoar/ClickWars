@@ -28,7 +28,7 @@ let server = http.createServer(function (req, res) {
         });
     }
 
-    else if (uri.match(/[/](\w+)/)[1] === 'javascript') {
+    else if (uri.match(/[/](\w+)/)[1] === 'js') {
         fs.exists(filename, function(exists) {
             if (!exists) {
                 return404();
@@ -80,9 +80,10 @@ let Client = function(id) {
 
 function checkForClient(id) {
     clientList.map(function(client) {
-        if (client.id === id) {return true;}
+        if (client.id === id)
+            return true;
     });
-}
+};
 
 function removeClient(id) {
     clientList.map(function(client, index) {
@@ -90,13 +91,14 @@ function removeClient(id) {
             clientList.splice(index, 1);
         }
     });
-}
+};
 
 io.on('connection', function(socket) {
 
     console.log('A user connected!');
-    let client = new Client(socket.id);
     socket.emit('setOwnID', socket.id);
+
+    let client = new Client(socket.id);
     socket.emit('clientListUpdate', clientList);
 
     socket.on('emitOwnMovement', function(x, y) {
@@ -107,7 +109,7 @@ io.on('connection', function(socket) {
             }
         });
 
-        socket.emit('clientListUpdate', clientList);
+        io.emit('clientListUpdate', clientList);
     });
 
     socket.on('disconnect', function() {

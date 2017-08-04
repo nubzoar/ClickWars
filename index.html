@@ -3,77 +3,26 @@
     <head>
         <title>Click Wars!</title>
         <style>
-            #game {
-                background-color: black;
+            #ClickWars {
+                padding: 0;
+                display: block;
+                position: absolute;
+                margin: auto;
+                background-color: grey;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
             }
         </style>
-        <!--<link rel="stylesheet" type="text/css" href="/css/index.css" />
-        <script src='/javascript/index.js'></script>-->
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-            let socket = io();
-            let clientList = [];
-            let ownClientID = null;
-            let intervalID = NaN;
-
-            let Canvas = {
-                width: 600,
-                width: 600,
-                id: "game",
-                containerId: "gameContainer",
-                intervalSpeed: 100
-            }
-
-            function init() {
-
-                // Set up mouse tracking
-                document.onmousemove = function(event) {
-                    socket.emit('emitOwnMovement', event.pageX, event.pageY);
-                }
-
-                socket.on('setOwnID', function(id) {ownClientID = id;});
-
-                socket.on('clientListUpdate', function(list) {clientList = list;});
-
-                /*
-                let can = document.createElement('canvas');
-                can.id = Canvas.id;
-                can.width = Canvas.width;
-                can.height = Canvas.height;
-
-                document.getElementById(Canvas.containerId).appendChild(can);
-                */
-
-                intervalID = setInterval(run, 20);
-            }
-
-            function run() {
-                let can = document.getElementById('game');
-                let ctx = can.getContext('2d');
-
-                ctx.clearRect(0, 0, 600, 600);
-
-                clientList.map(function(client) {
-                    if (client.id !== ownClientID) {
-                        drawMouse(ctx, client.mouseX, client.mouseY, "red");
-                    }
-                });
-            }
-
-            function drawMouse(ctx, x, y, color) {
-
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x + 5, y + 3);
-                ctx.lineTo(x - 3, y + 5);
-                ctx.fillStyle = color;
-                ctx.fill();
-            }
-        </script>
+        <!--<link rel="stylesheet" type="text/css" href="/css/index.css" />-->
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/js/canvas.js"></script>
+        <script type="text/javascript" src="/js/socketio.js"></script>
+        <script type="text/javascript" src="/js/engine.js"></script>
     </head>
-    <body onload="init()">
-        <div id="gameContainer">
-            <canvas id="game" width="600" height="600"></canvas>
+    <body onload="Engine.init()" onresize="Canvas.getOffsets()">
+        <div id="game">
         </div>
     </body>
 </html>
