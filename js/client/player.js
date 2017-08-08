@@ -11,10 +11,10 @@ let Player = {
             Player.x = event.pageX - Canvas.xOffset;
             Player.y = event.pageY - Canvas.yOffset;
             // Emit coords to the server.
-            SocketIO.socket.emit('emitOwnMovement', event.pageX - Canvas.xOffset, event.pageY - Canvas.yOffset);
+            SocketIO.socket.emit('clientMovement', event.pageX - Canvas.xOffset, event.pageY - Canvas.yOffset);
         }
 
-        canvas.addEventListener('click', function() {
+        document.getElementById(Canvas.id).addEventListener('click', function() {
             if ( Player.detectEnemy(Player.x, Player.y) ) {
                 // Remove enemy
             }

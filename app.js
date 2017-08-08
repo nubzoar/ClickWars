@@ -10,6 +10,15 @@ let server = http.createServer(function (req, res) {
     let uri = url.parse(req.url).pathname;
     let filename = path.join(process.cwd(), uri);
 
+    /*
+    let array = uri.match(/[/](\w+)/g);
+    if (array) {
+        for (let i = 0; i < array.length; i++) {
+            console.log(array[i]);
+        }
+    }
+    */
+
     if (req.url === '/') {
 
         res.writeHead(200, { 'Content-Type' : 'text/html' });
@@ -28,7 +37,7 @@ let server = http.createServer(function (req, res) {
         });
     }
 
-    else if (uri.match(/[/](\w+)/)[1] === 'js') {
+    else if (uri.match(/[/](\w+)/g)[0] === '/js' && uri.match(/[/](\w+)/g)[1] === '/client') {
         fs.exists(filename, function(exists) {
             if (!exists) {
                 return404();
@@ -65,64 +74,42 @@ function return404(res) {
 }
 
 // SOCKET.IO
-let io = require('socket.io')(server)
+let io = require('socket.io')(server);
+let HomeBase = require('./js/server/homeBase.js');
+let Client = require('./js/server/client.js');
+let Enemy = require('./js/server/enemy.js');
 
-let clientList = [];
-let Client = function(ID) {
-    if (!checkForClient(ID)) {
-        this.ID = ID;
-        this.mouseX = NaN;
-        this.mouseY = NaN;
-
-        clientList.push(this);
-    }
-};
-
-function checkForClient(ID) {
-    clientList.map(function(client) {
-        if (client.ID === ID)
-            return true;
-    });
-};
-
-function removeClient(ID) {
-    clientList.map(function(client, index) {
-        if (client.ID === ID) {
-            clientList.splice(index, 1);
-        }
-    });
-};
-
-let enemyList = [];
-let enemyIntervalID = NaN;
+let serverIntervalId = NaN;
+let serverIntervalSpeed = 20;
 
 io.on('connection', function(socket) {
 
-    console.log('A user connected!');
-    socket.emit('setOwnID', socket.ID);
+    console.log('A user connected! ID: ' + socket.id);
+    socket.emit('setOwnId', socket.id);
 
-    let client = new Client(socket.ID);
-    socket.emit('clientListUpdate', clientList);
+    let client = new Client.create(socket.id);
 
-    socket.on('emitOwnMovement', function(x, y) {
-        clientList.map(function(client) {
-            if (client.ID === socket.ID) {
+    socket.on('clientMovement', function(x, y) {
+        Client.list.map(function(client) {
+            if (client.id === socket.id) {
                 client.mouseX = x;
                 client.mouseY = y;
             }
         });
-
-        io.emit('clientListUpdate', clientList);
     });
-    /*
-    enemyIntervalID = setInterval(function () {
-        io.emit('enemyListUpdate', enemyList);
-    }, 10);
-    */
+
+    socket.on('createBasicEnemy', function() {
+        let enemy = new Enemy.createBasic();
+    });
+
+    serverIntervalId = setInterval(function () {
+        io.emit('intervalUpdate', HomeBase, Client.list, Enemy.list);
+        Enemy.move();
+    }, serverIntervalSpeed);
 
     socket.on('disconnect', function() {
-        console.log('A user disconnected!')
-        removeClient(socket.ID);
+        console.log('A user disconnected! ID: ' + socket.id);
+        Client.remove(socket.id);
     });
 });
 

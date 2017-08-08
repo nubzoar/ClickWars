@@ -5,3 +5,5 @@ let HomeBase = {
     size: 50,
     color: 'darkorange'
 }
+
+module.exports = HomeBase;
