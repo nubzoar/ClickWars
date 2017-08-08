@@ -1,0 +1,6 @@
+let Spawn = {
+
+    init: function() {
+        
+    }
+}

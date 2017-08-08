@@ -68,9 +68,9 @@ function return404(res) {
 let io = require('socket.io')(server)
 
 let clientList = [];
-let Client = function(id) {
-    if (!checkForClient(id)) {
-        this.id = id;
+let Client = function(ID) {
+    if (!checkForClient(ID)) {
+        this.ID = ID;
         this.mouseX = NaN;
         this.mouseY = NaN;
 
@@ -78,32 +78,35 @@ let Client = function(id) {
     }
 };
 
-function checkForClient(id) {
+function checkForClient(ID) {
     clientList.map(function(client) {
-        if (client.id === id)
+        if (client.ID === ID)
             return true;
     });
 };
 
-function removeClient(id) {
+function removeClient(ID) {
     clientList.map(function(client, index) {
-        if (client.id === id) {
+        if (client.ID === ID) {
             clientList.splice(index, 1);
         }
     });
 };
 
+let enemyList = [];
+let enemyIntervalID = NaN;
+
 io.on('connection', function(socket) {
 
     console.log('A user connected!');
-    socket.emit('setOwnID', socket.id);
+    socket.emit('setOwnID', socket.ID);
 
-    let client = new Client(socket.id);
+    let client = new Client(socket.ID);
     socket.emit('clientListUpdate', clientList);
 
     socket.on('emitOwnMovement', function(x, y) {
         clientList.map(function(client) {
-            if (client.id === socket.id) {
+            if (client.ID === socket.ID) {
                 client.mouseX = x;
                 client.mouseY = y;
             }
@@ -111,10 +114,15 @@ io.on('connection', function(socket) {
 
         io.emit('clientListUpdate', clientList);
     });
+    /*
+    enemyIntervalID = setInterval(function () {
+        io.emit('enemyListUpdate', enemyList);
+    }, 10);
+    */
 
     socket.on('disconnect', function() {
         console.log('A user disconnected!')
-        removeClient(socket.id);
+        removeClient(socket.ID);
     });
 });
 

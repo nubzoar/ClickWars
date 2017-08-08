@@ -44,5 +44,14 @@ let Canvas = {
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.stroke();
+    },
+
+    drawCircle: function(ctx, x, y, radius, color ) {
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+
     }
 }

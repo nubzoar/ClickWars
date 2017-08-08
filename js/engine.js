@@ -8,6 +8,10 @@ let Engine = {
         SocketIO.init();
         Canvas.init();
 
+        if (SocketIO.clientList[0].ID === SocketIO.ownClientID) {
+            Spawn.init();
+        }
+
         Engine.intervalID = setInterval(Engine.run, Engine.intervalSpeed);
     },
 
@@ -15,10 +19,12 @@ let Engine = {
 
         let ctx = document.getElementById(Canvas.ID).getContext('2d');
 
-        ctx.clearRect(0, 0, Canvas.width, Canvas.height);
+        ctx.clearRect(0, 0, Canvas.wIDth, Canvas.height);
+
+        Canvas.drawCircle(ctx, Canvas.wIDth / 2, Canvas.height / 2, HomeBase.size, HomeBase.color);
 
         SocketIO.clientList.map(function(client, index) {
-            if (client.id !== SocketIO.ownClientID) {
+            if (client.ID !== SocketIO.ownClientID) {
                 Canvas.drawMouse(ctx, client.mouseX, client.mouseY, Canvas.colorList[index]);
             }
         });

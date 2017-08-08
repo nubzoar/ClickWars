@@ -3,12 +3,16 @@
     <head>
         <title>Click Wars!</title>
         <style>
+            body {
+                background-color:steelblue;
+            }
             #ClickWars {
                 padding: 0;
+                border: 3px solid black;
                 display: block;
                 position: absolute;
                 margin: auto;
-                background-color: grey;
+                background-color: white;
                 top: 0;
                 left: 0;
                 right: 0;
@@ -19,6 +23,8 @@
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="/js/canvas.js"></script>
         <script type="text/javascript" src="/js/socketio.js"></script>
+        <script type="text/javascript" src="/js/homeBase.js"></script>
+        <script type="text/javascript" src="/js/player.js"></script>
         <script type="text/javascript" src="/js/engine.js"></script>
     </head>
     <body onload="Engine.init()" onresize="Canvas.getOffsets()">
