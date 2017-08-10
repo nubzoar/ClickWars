@@ -29,6 +29,7 @@ let server = http.createServer(function (req, res) {
     else if (uri.match(/[/](\w+)/)[1] === 'css') {
         fs.exists(filename, function(exists) {
             if (!exists) {
+                console.log("Css doesn't exist: " + req.url);
                 return404();
             } else {
                 res.writeHead(200, { 'Content-Type' : 'text/css' });
@@ -40,6 +41,7 @@ let server = http.createServer(function (req, res) {
     else if (uri.match(/[/](\w+)/g)[0] === '/js' && uri.match(/[/](\w+)/g)[1] === '/client') {
         fs.exists(filename, function(exists) {
             if (!exists) {
+                console.log("Client javascript doesn't exist: " + req.url);
                 return404();
             } else {
                 res.writeHead(200, { 'Content-Type' : 'text/javascript' });
@@ -53,6 +55,7 @@ let server = http.createServer(function (req, res) {
     else if (uri.match(/[/](\w+)/)[1] === 'images') {
         fs.exists(filename, function(exists) {
             if (!exists) {
+                console.log("Image doesn't exist: " + req.url);
                 return404();
             } else {
                 res.writeHead(200, { 'Content-Type' : 'image/png' });
@@ -62,6 +65,7 @@ let server = http.createServer(function (req, res) {
     }
 
     else {
+        console.log("Else reached, here is request url: " + req.url);
         return404(res);
     }
 
@@ -78,6 +82,7 @@ let io = require('socket.io')(server);
 let HomeBase = require('./js/server/homeBase.js');
 let Client = require('./js/server/client.js');
 let Enemy = require('./js/server/enemy.js');
+let Engine = require('./js/server/engine.js');
 
 let serverIntervalId = NaN;
 let serverIntervalSpeed = 20;
@@ -85,7 +90,7 @@ let serverIntervalSpeed = 20;
 io.on('connection', function(socket) {
 
     console.log('A user connected! ID: ' + socket.id);
-    socket.emit('setOwnId', socket.id);
+    socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
 
     let client = new Client.create(socket.id);
 
@@ -104,12 +109,12 @@ io.on('connection', function(socket) {
 
     serverIntervalId = setInterval(function () {
         io.emit('intervalUpdate', HomeBase, Client.list, Enemy.list);
-        Enemy.move();
     }, serverIntervalSpeed);
 
     socket.on('disconnect', function() {
         console.log('A user disconnected! ID: ' + socket.id);
         Client.remove(socket.id);
+        io.emit('updateGm', Client.list);
     });
 });
 

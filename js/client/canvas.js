@@ -1,57 +1,66 @@
-let Canvas = {
+let Canvas = new SocketIO.Canvas();
 
-    width: 1000,
-    height: 600,
-    xOffset: NaN,
-    yOffset: NaN,
-    id: "ClickWars",
-    containerId: "game",
+Canvas.init = function() {
+    let can = document.createElement('canvas');
+    can.id = Canvas.id;
+    can.width = Canvas.width;
+    can.height = Canvas.height;
 
-    colorList: ['Blue', 'Green', 'Yellow', 'Orange', 'Red', 'Purple', 'Cyan'],
+    document.getElementById(Canvas.containerId).appendChild(can);
 
-    init: function() {
+    document.getElementsByTagName('body')[0].onresize = Canvas.getOffsets;
+    Canvas.getOffsets();
+};
 
-        let can = document.createElement('canvas');
-        can.id = Canvas.id;
-        can.width = Canvas.width;
-        can.height = Canvas.height;
+Canvas.getOffsets = function() {
+    let boundingBox = document.getElementById(Canvas.id).getBoundingClientRect();
+    Canvas.xOffset = boundingBox.left;
+    Canvas.yOffset = boundingBox.top;
+};
 
-        document.getElementById(Canvas.containerId).appendChild(can);
+Canvas.draw = function() {
+    let ctx = document.getElementById(Canvas.id).getContext('2d');
 
-        Canvas.getOffsets();
-    },
+    ctx.clearRect(0, 0, Canvas.width, Canvas.height);
 
-    getOffsets: function() {
-        let boundingBox = document.getElementById(Canvas.id).getBoundingClientRect();
-        Canvas.xOffset = boundingBox.left;
-        Canvas.yOffset = boundingBox.top;
-    },
+    // Draw HomeBase
+    Canvas.drawCircle(ctx, Canvas.width / 2, Canvas.height / 2, SocketIO.HomeBase.size, SocketIO.HomeBase.color);
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText(SocketIO.HomeBase.health, Canvas.width / 2 - 15, Canvas.height / 2 + 7);
 
-    drawMouse: function(ctx, x, y, color) {
+    SocketIO.clientList.map(function(client, index) {
+        if (client.id !== SocketIO.ownClientId && client.id !== SocketIO.gmClientId) {
+            Canvas.drawMouse(ctx, client.mouseX, client.mouseY, Canvas.colorList[index]);
+        }
+    });
 
-        // Triangle bit
-        ctx.beginPath();
-        ctx.moveTo(x, y + 12);
-        ctx.lineTo(x, y);
-        ctx.lineTo(x + 8, y + 10);
-        ctx.fillStyle = color;
-        ctx.fill();
+    SocketIO.enemyList.map(function(enemy) {
+        Canvas.drawCircle(ctx, enemy.x, enemy.y, enemy.color);
+    });
+};
 
-        // Line bit
-        ctx.beginPath();
-        ctx.moveTo(x + 3, y + 8);
-        ctx.lineTo(x + 6, y + 15);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    },
+Canvas.drawMouse = function() {
+    // Triangle bit
+    ctx.beginPath();
+    ctx.moveTo(x, y + 12);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + 8, y + 10);
+    ctx.fillStyle = color;
+    ctx.fill();
 
-    drawCircle: function(ctx, x, y, radius, color ) {
+    // Line bit
+    ctx.beginPath();
+    ctx.moveTo(x + 3, y + 8);
+    ctx.lineTo(x + 6, y + 15);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+};
 
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.fill();
-
-    }
-}
+Canvas.drawCircle = function() {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.fill();
+};
