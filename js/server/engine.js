@@ -1,17 +1,22 @@
 let Engine = {
 
-    Canvas: function() {
-        this.width = 1000;
-        this.height = 600;
-        this.xOffset = NaN;
-        this.yOffset = NaN;
-        this.id = "ClickWars";
-        this.containerID = "game";
-        this.drawIntervalID = NaN;
-        this.drawIntervalSpeed = 10;
+    serverIntervalId: NaN,
+    serverIntervalSpeed: 20,
 
-        this.colorList = ['Blue', 'Green', 'Yellow', 'Orange', 'Red', 'Purple', 'Cyan'];
+    // Enemy spawning interval id for testing purposes.
+    enemyTestingId: NaN,
+
+    Canvas: {
+        width: 1000,
+        height: 600,
+        id: "ClickWars",
+        containerId: "game",
+        drawIntervalSpeed: 10,
+
+        colorList: ['Blue', 'Green', 'Yellow', 'Orange', 'Red', 'Purple', 'Cyan']
     }
+
+
 };
 
 module.exports = Engine;

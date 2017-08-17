@@ -7,21 +7,29 @@ let Player = {
         
         // Track mouse coords
         document.onmousemove = function(event) {
+
+            let newX = event.pageX - Canvas.xOffset;
+            let newY = event.pageY - Canvas.yOffset;
+
             // Set own coords
-            Player.x = event.pageX - Canvas.xOffset;
-            Player.y = event.pageY - Canvas.yOffset;
+            Player.x = newX;
+            Player.y = newY;
+
             // Emit coords to the server.
-            SocketIO.socket.emit('clientMovement', event.pageX - Canvas.xOffset, event.pageY - Canvas.yOffset);
+            SocketIO.emitMovement(newX, newY);
         }
 
-        document.getElementById(Canvas.id).addEventListener('click', function() {
-            if ( Player.detectEnemy(Player.x, Player.y) ) {
-                // Remove enemy
-            }
-        });
+        // Detect collision client side or server side?
+        document.getElementById("ClickWars").addEventListener('click', Player.onClickRemoveEnemy);
     },
 
-    detectEnemy: function(x, y) {
-        
+    onClickRemoveEnemy: function() {
+        SocketIO.enemyList.map(function(enemy, index) {
+            if (Player.x >= enemy.x + enemy.leftEdge && Player.x <= enemy.x + enemy.rightEdge) {
+                if (Player.y >= enemy.y + enemy.topEdge && Player.y <= enemy.y + enemy.bottomEdge) {
+                    SocketIO.socket.emit();
+                }
+            }
+        });
     }
 }

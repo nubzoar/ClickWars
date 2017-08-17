@@ -11,6 +11,7 @@ let server = http.createServer(function (req, res) {
     let filename = path.join(process.cwd(), uri);
 
     /*
+    // Remove comment for verbose uri logging.
     let array = uri.match(/[/](\w+)/g);
     if (array) {
         for (let i = 0; i < array.length; i++) {
@@ -84,15 +85,12 @@ let Client = require('./js/server/client.js');
 let Enemy = require('./js/server/enemy.js');
 let Engine = require('./js/server/engine.js');
 
-let serverIntervalId = NaN;
-let serverIntervalSpeed = 20;
-
 io.on('connection', function(socket) {
 
     console.log('A user connected! ID: ' + socket.id);
-    socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
-
     let client = new Client.create(socket.id);
+
+    socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
 
     socket.on('clientMovement', function(x, y) {
         Client.list.map(function(client) {
@@ -107,9 +105,25 @@ io.on('connection', function(socket) {
         let enemy = new Enemy.createBasic();
     });
 
-    serverIntervalId = setInterval(function () {
-        io.emit('intervalUpdate', HomeBase, Client.list, Enemy.list);
-    }, serverIntervalSpeed);
+    socket.on('removeEnemy', function(id) {
+        Enemy.removeById(id);
+    });
+
+    if (isNaN(Engine.serverIntervalId)) {
+        console.log("Engine interval started!");
+        Engine.serverIntervalId = setInterval(function () {
+            Enemy.move();
+            io.emit('intervalUpdate', HomeBase, Client.list, Enemy.list);
+        }, Engine.serverIntervalSpeed);
+    }
+
+    // Temporary enemy creation for testing purposes.
+    if (isNaN(Engine.enemyTestingId)) {
+        console.log("Enemy testing interval started!");
+        Engine.enemyTestingId = setInterval(function() {
+            let enemy = new Enemy.createBasic();
+        }, 5000);
+    }
 
     socket.on('disconnect', function() {
         console.log('A user disconnected! ID: ' + socket.id);

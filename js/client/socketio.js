@@ -2,8 +2,8 @@ let SocketIO = {
 
     socket: io(),
     ownClientId: null,
-    Canvas: null,
     gmClientId: null,
+    
     clientList: [],
     enemyList: [],
     HomeBase: {},
@@ -15,12 +15,13 @@ let SocketIO = {
             SocketIO.gmClientId = SocketIO.clientList[0].id;
             SocketIO.ownClientId = id;
 
-            // Store Canvas object constructor recieved from the server.
-            SocketIO.Canvas = canvas;
-            // Load Canvas script which uses contructor.
-            SocketIO.loadScript("/js/client/canvas.js");
+            SocketIO.loadCanvas(canvas);
 
-            // TO DO: Remove listener?
+            Canvas.init();
+            Player.init();
+            Canvas.drawIntervalId = setInterval(Canvas.draw, Canvas.drawIntervalSpeed);
+
+            // TO DO: Figure out how to remove listener.
         });
 
         SocketIO.socket.on('intervalUpdate', function(hb, clients, enemys) {
@@ -36,6 +37,26 @@ let SocketIO = {
 
     },
 
+    loadCanvas: function(canvas) {
+        Canvas.width = canvas.width;
+        Canvas.height = canvas.height;
+        Canvas.id = canvas.id;
+        Canvas.containerId = canvas.containerId;
+        Canvas.drawIntervalSpeed = canvas.drawIntervalSpeed;
+        Canvas.colorList = canvas.colorList;
+    },
+
+    emitMovement: function(x, y) {
+        SocketIO.socket.emit('clientMovement', x, y);
+    },
+
+    removeEnemy: function(id) {
+        SocketIO.socket.emit('removeEnemy', id);
+    }
+
+    /*
+    This function dynamically loads another javascript file from the server.
+    I decided to approach it problem a different way, but this was interesting.
     loadScript: function(src) {
         let head = document.getElementsByTagName('head')[0];
         let script = document.createElement('script');
@@ -43,6 +64,5 @@ let SocketIO = {
         script.src = src;
         head.appendChild(script);
     }
-
-
+    */
 }
