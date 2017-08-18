@@ -109,7 +109,7 @@ io.on('connection', function(socket) {
         Enemy.removeById(id);
     });
 
-    if (isNaN(Engine.serverIntervalId)) {
+    if (!Engine.serverIntervalId) {
         console.log("Engine interval started!");
         Engine.serverIntervalId = setInterval(function () {
             Enemy.move();
@@ -118,11 +118,11 @@ io.on('connection', function(socket) {
     }
 
     // Temporary enemy creation for testing purposes.
-    if (isNaN(Engine.enemyTestingId)) {
+    if (!Engine.enemyTestingId) {
         console.log("Enemy testing interval started!");
         Engine.enemyTestingId = setInterval(function() {
             let enemy = new Enemy.createBasic();
-        }, 5000);
+        }, 3000);
     }
 
     socket.on('disconnect', function() {
@@ -131,6 +131,10 @@ io.on('connection', function(socket) {
         io.emit('updateGm', Client.list);
     });
 });
+
+for (let i = 1; i <= 50; i++) {
+    console.log(Engine.getRandomBool());
+};
 
 // Start server
 server.listen(port, function(err) {

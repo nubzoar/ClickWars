@@ -10,8 +10,8 @@ let Enemy = {
         return new Date().valueOf();
     },
 
-    baseSpeed: .1,
-    baseSize: 7,
+    baseSpeed: 1,
+    baseSize: 10,
 
     canvasCenterX: Engine.Canvas.width / 2,
     canvasCenterY: Engine.Canvas.height / 2,
@@ -22,8 +22,11 @@ let Enemy = {
         this.id = Enemy.idGen();
         this.type = "basic";
         this.color = "red";
-        this.x = 0;
-        this.y = 0;
+
+        let pos = Enemy.getRandomPos();
+        this.x = pos[0];
+        this.y = pos[1];
+
         this.speed = Enemy.baseSpeed;
         this.radius = Enemy.baseSize;
 
@@ -65,10 +68,29 @@ let Enemy = {
         });
     },
 
+    getRandomPos: function() {
+        // Returns array, index 0 is x coord, index 1 is y coord
+        let edge = Engine.getRandomInteger(1, 4);
+
+        if (edge === 1) {
+            // Edge is top
+            return [0, Engine.getRandomInteger(0, Engine.Canvas.height)];
+        } else if (edge === 2) {
+            // Edge is right
+            return [Engine.getRandomInteger(0, Engine.Canvas.width), Engine.Canvas.height];
+        } else if (edge === 3) {
+            // Edge is bottom
+            return [Engine.Canvas.width, Engine.getRandomInteger(0, Engine.Canvas.height)];
+        } else if (edge === 4) {
+            // Edge is left
+            return [Engine.getRandomInteger(0, Engine.Canvas.width), 0];
+        }
+    },
+
     removeById: function(id) {
         Enemy.list.map(function(enemy, index) {
             if (enemy.id === id) {
-                Enemy.list.splice(enemy.index, 1);
+                Enemy.list.splice(index, 1);
             }
         });
     }

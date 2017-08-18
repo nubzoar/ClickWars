@@ -1,6 +1,6 @@
 let Engine = {
 
-    serverIntervalId: NaN,
+    serverIntervalId: null,
     serverIntervalSpeed: 20,
 
     // Enemy spawning interval id for testing purposes.
@@ -14,6 +14,14 @@ let Engine = {
         drawIntervalSpeed: 10,
 
         colorList: ['Blue', 'Green', 'Yellow', 'Orange', 'Red', 'Purple', 'Cyan']
+    },
+
+    getRandomInteger: function(min, max) {
+        return ( Math.floor( Math.random() * (max - min) ) + min );
+    },
+
+    getRandomBool: function() {
+        return ( Math.random() >= 0.5 );
     }
 
 

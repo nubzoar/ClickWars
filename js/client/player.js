@@ -27,7 +27,7 @@ let Player = {
         SocketIO.enemyList.map(function(enemy, index) {
             if (Player.x >= enemy.x + enemy.leftEdge && Player.x <= enemy.x + enemy.rightEdge) {
                 if (Player.y >= enemy.y + enemy.topEdge && Player.y <= enemy.y + enemy.bottomEdge) {
-                    SocketIO.socket.emit();
+                    SocketIO.removeEnemy(enemy.id);
                 }
             }
         });
