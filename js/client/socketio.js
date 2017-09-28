@@ -14,7 +14,8 @@ let SocketIO = {
             SocketIO.clientList = clients;
             SocketIO.gmClientId = SocketIO.clientList[0].id;
             SocketIO.ownClientId = id;
-
+            
+            console.log("Canvas Properties: " + canvas);
             SocketIO.loadCanvas(canvas);
 
             Canvas.init();

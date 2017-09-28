@@ -25,11 +25,19 @@ let Player = {
 
     onClickRemoveEnemy: function() {
         SocketIO.enemyList.map(function(enemy, index) {
+            // Circle collision detection
+            let distance = Math.sqrt( Math.pow(Player.x - enemy.x, 2) + Math.pow(Player.y - enemy.y, 2) );
+            if (distance <= enemy.radius * 1.25) {
+                SocketIO.removeEnemy(enemy.id);
+            }
+
+            /* Square collision detection
             if (Player.x >= enemy.x + enemy.leftEdge && Player.x <= enemy.x + enemy.rightEdge) {
                 if (Player.y >= enemy.y + enemy.topEdge && Player.y <= enemy.y + enemy.bottomEdge) {
                     SocketIO.removeEnemy(enemy.id);
                 }
             }
+            */
         });
     }
 }

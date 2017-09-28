@@ -55,8 +55,14 @@ let Enemy = {
                 enemy.y -= enemy.speed;
             }
 
-            // Collision doesn't work correctly in the corners of the home base
-            // because the collision code doesn't account for the fact that home base is a circle.
+            // Circle collision detection
+            let distance = Math.sqrt( Math.pow(enemy.x - Enemy.canvasCenterX, 2) + Math.pow(enemy.y - Enemy.canvasCenterY, 2) ) + enemy.radius;
+            if (distance <= HomeBase.size) {
+                Enemy.removeById(enemy.id);
+                HomeBase.health--;
+            }
+
+            /* Square collision detection
             if (enemy.x + enemy.rightEdge >= Enemy.canvasCenterX - HomeBase.size
                     && enemy.x + enemy.leftEdge <= Enemy.canvasCenterX + HomeBase.size) {
                 if (enemy.y + enemy.bottomEdge >= Enemy.canvasCenterY - HomeBase.size
@@ -65,6 +71,7 @@ let Enemy = {
                         HomeBase.health--;
                 }
             }
+            */
         });
     },
 

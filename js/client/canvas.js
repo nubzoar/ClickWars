@@ -41,13 +41,16 @@ let Canvas = {
         Canvas.drawCircle(ctx, Canvas.width / 2, Canvas.height / 2, SocketIO.HomeBase.size, SocketIO.HomeBase.color);
         ctx.font = "16px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(SocketIO.HomeBase.health, Canvas.width / 2 - 15, Canvas.height / 2 + 7);
+        ctx.fillText(SocketIO.HomeBase.health, Canvas.width / 2 - ( ctx.measureText(SocketIO.HomeBase.health).width / 2 ), Canvas.height / 2 + 7);
         
         // Draw clients
         SocketIO.clientList.map(function(client, index) {
             if (client.id !== SocketIO.ownClientId && client.id !== SocketIO.gmClientId) {
                 Canvas.drawMouse(ctx, client.mouseX, client.mouseY, Canvas.colorList[index]);
             }
+
+            // Draw colored circle for each player in top right.
+            Canvas.drawCircle(ctx, Canvas.width - (15 * index + 10), 10, 5, Canvas.colorList[index]);
         });
     
         // Draw enemies

@@ -13,7 +13,7 @@ let Engine = {
         containerId: "game",
         drawIntervalSpeed: 10,
 
-        colorList: ['Blue', 'Green', 'Yellow', 'Orange', 'Red', 'Purple', 'Cyan']
+        colorList: ['Blue', 'Green', 'Gold', 'Orange', 'Red', 'Purple', 'Cyan']
     },
 
     getRandomInteger: function(min, max) {
@@ -23,7 +23,6 @@ let Engine = {
     getRandomBool: function() {
         return ( Math.random() >= 0.5 );
     }
-
 
 };
 
