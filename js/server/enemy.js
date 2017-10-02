@@ -23,11 +23,15 @@ let Enemy = {
         this.type = "basic";
         this.color = "red";
 
-        let pos = Enemy.getRandomPos();
+        let pos = Enemy.getRandomEdgePos();
         this.x = pos[0];
         this.y = pos[1];
 
         this.speed = Enemy.baseSpeed;
+        this.velX = 0;
+        this.velY = 0;
+        this.moveType = "random";
+
         this.radius = Enemy.baseSize;
 
         // Variables useful for collision detection
@@ -43,24 +47,17 @@ let Enemy = {
     move: function() {
         Enemy.list.map(function(enemy, index) {
 
-            if (enemy.x < Enemy.canvasCenterX) {
-                enemy.x += enemy.speed;
-            } else {
-                enemy.x -= enemy.speed;
-            }
-
-            if (enemy.y < Enemy.canvasCenterY) {
-                enemy.y += enemy.speed;
-            } else {
-                enemy.y -= enemy.speed;
-            }
+            // Calculate the distance to the center.
+            let distance = Engine.getDistance(enemy.x, Enemy.canvasCenterX, enemy.y, Enemy.canvasCenterY) + enemy.radius;
 
             // Circle collision detection
-            let distance = Math.sqrt( Math.pow(enemy.x - Enemy.canvasCenterX, 2) + Math.pow(enemy.y - Enemy.canvasCenterY, 2) ) + enemy.radius;
             if (distance <= HomeBase.size) {
                 Enemy.removeById(enemy.id);
                 HomeBase.health--;
             }
+
+            // Move enemy
+            Enemy.moveType[enemy.moveType](enemy, distance);
 
             /* Square collision detection
             if (enemy.x + enemy.rightEdge >= Enemy.canvasCenterX - HomeBase.size
@@ -75,8 +72,28 @@ let Enemy = {
         });
     },
 
-    getRandomPos: function() {
-        // Returns array, index 0 is x coord, index 1 is y coord
+    moveType: {
+        basic: function(enemy, distance) {
+            enemy.x += ( Enemy.canvasCenterX - enemy.x ) / enemy.speed;
+            enemy.y += ( Enemy.canvasCenterY - enemy.y ) / enemy.speed;
+        },
+        random: function(enemy, distance) {
+            // Generate a random point thats closer to the center.
+            let newPos = [];
+            let newDistance = -1;
+            do {
+                newPos = Enemy.getRandomMovePos(enemy.x, enemy.y, enemy.speed);
+                newDistance = Engine.getDistance(newPos[0], Enemy.canvasCenterX, newPos[1], Enemy.canvasCenterY) + enemy.radius;
+            }
+            while (newDistance >= distance);
+
+            enemy.x = newPos[0];
+            enemy.y = newPos[1];
+        }
+    },
+
+    getRandomEdgePos: function() {
+        // Returns array, index 0 is x coord, index 1 is y coord.
         let edge = Engine.getRandomInteger(1, 4);
 
         if (edge === 1) {
@@ -92,6 +109,11 @@ let Enemy = {
             // Edge is left
             return [Engine.getRandomInteger(0, Engine.Canvas.width), 0];
         }
+    },
+
+    getRandomMovePos: function(x, y, speed) {
+        // Returns array, index 0 is x coord, index 1 is y coord.
+        return [x + Engine.getRandomInteger(-1 * speed, speed + 1), y + Engine.getRandomInteger(-1 * speed, speed + 1)]
     },
 
     removeById: function(id) {
