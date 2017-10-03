@@ -106,6 +106,10 @@ io.on('connection', function(socket) {
         let enemy = new Enemy.createBasic();
     });
 
+    socket.on('createFastEnemy', function() {
+        let enemy = new Enemy.createFast();
+    });
+
     socket.on('hurtEnemy', function(id) {
         Enemy.hurtEnemy(id);
     });
@@ -117,7 +121,7 @@ io.on('connection', function(socket) {
     socket.on('setGmId', function() {
         console.log("Recieve command to change GM from ID: " + socket.id);
         Client.setGm(socket.id);
-        io.emit('updateGm', Client.list);
+        io.emit('updateGm', Client.list, socket.id);
     });
 
     if (!Engine.serverIntervalId) {
@@ -125,6 +129,11 @@ io.on('connection', function(socket) {
         Engine.serverIntervalId = setInterval(function () {
             Enemy.move();
             io.emit('intervalUpdate', Center, Client.list, Enemy.list);
+
+            if (Center.health <= 0) {
+                clearInterval(Engine.serverIntervalId);
+                io.emit('gameOver');
+            }
         }, Engine.serverIntervalSpeed);
     }
 
@@ -139,7 +148,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log('A user disconnected! ID: ' + socket.id);
         Client.remove(socket.id);
-        io.emit('updateGm', Client.list);
+        io.emit('updateGm', Client.list, Client.list[0].id);
     });
 });
 

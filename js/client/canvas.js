@@ -9,10 +9,12 @@ let Canvas = {
     id: '',
     containerId: '',
 
-    drawIntervalID: NaN,
-    drawIntervalSpeed: 10,
+    //drawIntervalID: NaN,
+    //drawIntervalSpeed: 10,
 
     colorList: [],
+
+    gameOver: false,
 
     init: function() {
         let can = document.createElement('canvas');
@@ -41,7 +43,8 @@ let Canvas = {
         Canvas.drawCircle(ctx, SocketIO.Center.x, SocketIO.Center.y, SocketIO.Center.size, SocketIO.Center.color);
         ctx.font = "16px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(SocketIO.Center.health, SocketIO.Center.x - ( ctx.measureText(SocketIO.Center.health).width / 2 ), SocketIO.Center.y + 7);
+        let textMetrics = ctx.measureText(SocketIO.Center.health);
+        ctx.fillText(SocketIO.Center.health, SocketIO.Center.x - (textMetrics.width / 2), SocketIO.Center.y + 7);
         
         // Draw clients
         SocketIO.clientList.map(function(client, index) {
@@ -57,6 +60,12 @@ let Canvas = {
         SocketIO.enemyList.map(function(enemy) {
             Canvas.drawCircle(ctx, enemy.x, enemy.y, enemy.radius, enemy.color);
         });
+
+        if (Canvas.gameOver) {
+            Canvas.drawGameOver();
+        } else {
+            requestAnimationFrame(Canvas.draw)
+        }
     },
 
     drawMouse: function(ctx, x, y, color) {
@@ -82,5 +91,13 @@ let Canvas = {
         ctx.arc(x, y, radius, 0, 2 * Math.PI);
         ctx.fillStyle = color;
         ctx.fill();
+    },
+
+    drawGameOver: function() {
+        let ctx = document.getElementById(Canvas.id).getContext('2d');
+        ctx.font = "Bold 48px Arial";
+        ctx.fillStyle = "red";
+        let textMetrics = ctx.measureText("Game Over");
+        ctx.fillText("Game Over", SocketIO.Center.x - (textMetrics.width / 2), SocketIO.Center.y + 12);
     }
 }

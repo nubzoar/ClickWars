@@ -30,11 +30,29 @@ let Enemy = {
         Enemy.list.push(this);
     },
 
+    createFast: function() {
+        this.id = Enemy.idGen();
+        this.type = "basic";
+        this.color = "purple";
+
+        let pos = Enemy.getRandomEdgePos();
+        this.x = pos[0];
+        this.y = pos[1];
+
+        this.speed = 4;
+        this.distance = -1;
+        Enemy.setMoveType.Basic(this);
+
+        this.radius = 12;
+
+        Enemy.list.push(this);
+    },
+
     move: function() {
         Enemy.list.map(function(enemy, index) {
 
             // Calculate the distance to the center.
-            enemy.distance = Engine.getDistance(enemy.x, Center.x, enemy.y, Center.y) + enemy.radius;
+            enemy.distance = Engine.getDistance(enemy.x, Center.x, enemy.y, Center.y) - enemy.radius / 2;
 
             // Circle collision detection
             if (enemy.distance <= Center.size) {

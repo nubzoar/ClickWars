@@ -1,6 +1,0 @@
-let Spawn = {
-
-    init: function() {
-        
-    }
-}
