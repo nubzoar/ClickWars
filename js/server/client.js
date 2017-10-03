@@ -13,19 +13,28 @@ let Client = {
     },
 
     exists: function(id) {
-        Client.list.map(function(client) {
-            if (client.id === id)
+        return Client.list.some(function(client) {
+            if (client.id === id) {
                 return true;
+            }
         });
-        return false;
+    },
+
+    setGm: function(id) {
+        if (Client.exists(id)) {
+            Client.list.unshift( Client.remove(id) );
+        }
     },
 
     remove: function(id) {
-        Client.list.map(function(client, index) {
-            if (client.id === id) {
-                Client.list.splice(index, 1);
+        let client = null;
+        Client.list.some(function(c, index) {
+            if (c.id === id) {
+                client = Client.list.splice(index, 1);
+                return true;
             }
         });
+        return client;
     }
 }
 

@@ -37,11 +37,11 @@ let Canvas = {
     
         ctx.clearRect(0, 0, Canvas.width, Canvas.height);
     
-        // Draw HomeBase
-        Canvas.drawCircle(ctx, Canvas.width / 2, Canvas.height / 2, SocketIO.HomeBase.size, SocketIO.HomeBase.color);
+        // Draw Center
+        Canvas.drawCircle(ctx, SocketIO.Center.x, SocketIO.Center.y, SocketIO.Center.size, SocketIO.Center.color);
         ctx.font = "16px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(SocketIO.HomeBase.health, Canvas.width / 2 - ( ctx.measureText(SocketIO.HomeBase.health).width / 2 ), Canvas.height / 2 + 7);
+        ctx.fillText(SocketIO.Center.health, SocketIO.Center.x - ( ctx.measureText(SocketIO.Center.health).width / 2 ), SocketIO.Center.y + 7);
         
         // Draw clients
         SocketIO.clientList.map(function(client, index) {

@@ -13,7 +13,7 @@ let Engine = {
         containerId: "game",
         drawIntervalSpeed: 10,
 
-        colorList: ['Blue', 'Green', 'Gold', 'Orange', 'Red', 'Purple', 'Cyan']
+        colorList: ['Black', 'Blue', 'Red', 'Green', 'Orange', 'Pink', 'Cyan', 'Purple', 'Gold', 'Grey', 'LightBlue', 'DarkGreen', 'Brown']
     },
 
     getDistance: function(x1, x2, y1, y2) {

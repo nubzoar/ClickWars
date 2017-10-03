@@ -80,7 +80,7 @@ function return404(res) {
 
 // SOCKET.IO
 let io = require('socket.io')(server);
-let HomeBase = require('./js/server/homeBase.js');
+let Center = require('./js/server/center.js');
 let Client = require('./js/server/client.js');
 let Enemy = require('./js/server/enemy.js');
 let Engine = require('./js/server/engine.js');
@@ -90,7 +90,7 @@ io.on('connection', function(socket) {
     console.log('A user connected! ID: ' + socket.id);
     let client = new Client.create(socket.id);
 
-    console.log("Client.list: " + Client.list + ", socket.id: " + socket.id + ", Engine.Canvas: " + Engine.Canvas);
+    //console.log("Client.list: " + Client.list + ", socket.id: " + socket.id + ", Engine.Canvas: " + Engine.Canvas);
     socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
 
     socket.on('clientMovement', function(x, y) {
@@ -106,15 +106,25 @@ io.on('connection', function(socket) {
         let enemy = new Enemy.createBasic();
     });
 
+    socket.on('hurtEnemy', function(id) {
+        Enemy.hurtEnemy(id);
+    });
+
     socket.on('removeEnemy', function(id) {
         Enemy.removeById(id);
+    });
+
+    socket.on('setGmId', function() {
+        console.log("Recieve command to change GM from ID: " + socket.id);
+        Client.setGm(socket.id);
+        io.emit('updateGm', Client.list);
     });
 
     if (!Engine.serverIntervalId) {
         console.log("Engine interval started!");
         Engine.serverIntervalId = setInterval(function () {
             Enemy.move();
-            io.emit('intervalUpdate', HomeBase, Client.list, Enemy.list);
+            io.emit('intervalUpdate', Center, Client.list, Enemy.list);
         }, Engine.serverIntervalSpeed);
     }
 

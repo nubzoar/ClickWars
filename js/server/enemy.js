@@ -1,4 +1,4 @@
-let HomeBase = require('./homeBase.js');
+let Center = require('./center.js');
 let Engine = require('./engine.js');
 
 let Enemy = {
@@ -9,12 +9,6 @@ let Enemy = {
         // should fine for my purposes.
         return new Date().valueOf();
     },
-
-    baseSpeed: 1,
-    baseSize: 10,
-
-    canvasCenterX: Engine.Canvas.width / 2,
-    canvasCenterY: Engine.Canvas.height / 2,
 
     list: [],
 
@@ -27,19 +21,11 @@ let Enemy = {
         this.x = pos[0];
         this.y = pos[1];
 
-        this.speed = Enemy.baseSpeed;
-        this.velX = 0;
-        this.velY = 0;
-        this.moveType = "random";
+        this.speed = 1;
+        this.distance = -1;
+        Enemy.setMoveType.Basic(this);
 
-        this.radius = Enemy.baseSize;
-
-        // Variables useful for collision detection
-        // since not every enemy might be a circle.
-        this.leftEdge = -1 * Enemy.baseSize;
-        this.rightEdge = Enemy.baseSize;
-        this.topEdge = -1 * Enemy.baseSize;
-        this.bottomEdge = Enemy.baseSize;
+        this.radius = 10;
 
         Enemy.list.push(this);
     },
@@ -48,47 +34,54 @@ let Enemy = {
         Enemy.list.map(function(enemy, index) {
 
             // Calculate the distance to the center.
-            let distance = Engine.getDistance(enemy.x, Enemy.canvasCenterX, enemy.y, Enemy.canvasCenterY) + enemy.radius;
+            enemy.distance = Engine.getDistance(enemy.x, Center.x, enemy.y, Center.y) + enemy.radius;
 
             // Circle collision detection
-            if (distance <= HomeBase.size) {
+            if (enemy.distance <= Center.size) {
                 Enemy.removeById(enemy.id);
-                HomeBase.health--;
+                Center.health--;
             }
 
             // Move enemy
-            Enemy.moveType[enemy.moveType](enemy, distance);
+            enemy.move();
 
-            /* Square collision detection
-            if (enemy.x + enemy.rightEdge >= Enemy.canvasCenterX - HomeBase.size
-                    && enemy.x + enemy.leftEdge <= Enemy.canvasCenterX + HomeBase.size) {
-                if (enemy.y + enemy.bottomEdge >= Enemy.canvasCenterY - HomeBase.size
-                    && enemy.y + enemy.topEdge <= Enemy.canvasCenterY + HomeBase.size) {
-                        Enemy.removeById(enemy.id);
-                        HomeBase.health--;
-                }
-            }
-            */
         });
     },
 
-    moveType: {
-        basic: function(enemy, distance) {
-            enemy.x += ( Enemy.canvasCenterX - enemy.x ) / enemy.speed;
-            enemy.y += ( Enemy.canvasCenterY - enemy.y ) / enemy.speed;
-        },
-        random: function(enemy, distance) {
-            // Generate a random point thats closer to the center.
-            let newPos = [];
-            let newDistance = -1;
-            do {
-                newPos = Enemy.getRandomMovePos(enemy.x, enemy.y, enemy.speed);
-                newDistance = Engine.getDistance(newPos[0], Enemy.canvasCenterX, newPos[1], Enemy.canvasCenterY) + enemy.radius;
+    hurtEnemy: function(id) {
+        Enemy.list.some(function(enemy, index) {
+            if (enemy.id === id) {
+                enemy.health--;
+                return true;
             }
-            while (newDistance >= distance);
+        });
+    },
 
-            enemy.x = newPos[0];
-            enemy.y = newPos[1];
+    setMoveType: {
+
+        // Move in a straight line, at a constant speed, towards the center.
+        Basic: function(obj) {
+            obj.move = function() {
+                this.x += ( Center.x - this.x ) / this.distance * this.speed;
+                this.y += ( Center.y - this.y ) / this.distance * this.speed;
+            }
+        },
+
+        // This movement type is horrible, especially at high speeds.
+        Random: function(obj) {
+            obj.move = function() {
+                // Generate a random point thats closer to the center.
+                let newPos = [];
+                let newDistance = -1;
+                do {
+                    newPos = Enemy.getRandomMovePos(this.x, this.y, this.speed);
+                    newDistance = Engine.getDistance(newPos[0], Center.x, newPos[1], Center.y) + this.radius;
+                }
+                while (newDistance >= this.distance);
+
+                this.x = newPos[0];
+                this.y = newPos[1];
+            }
         }
     },
 
@@ -117,9 +110,10 @@ let Enemy = {
     },
 
     removeById: function(id) {
-        Enemy.list.map(function(enemy, index) {
+        Enemy.list.some(function(enemy, index) {
             if (enemy.id === id) {
                 Enemy.list.splice(index, 1);
+                return true;
             }
         });
     }

@@ -6,7 +6,7 @@ let SocketIO = {
     
     clientList: [],
     enemyList: [],
-    HomeBase: {},
+    Center: {},
 
     init: function() {
 
@@ -15,18 +15,17 @@ let SocketIO = {
             SocketIO.gmClientId = SocketIO.clientList[0].id;
             SocketIO.ownClientId = id;
             
-            console.log("Canvas Properties: " + canvas);
             SocketIO.loadCanvas(canvas);
 
             Canvas.init();
             Player.init();
             Canvas.drawIntervalId = setInterval(Canvas.draw, Canvas.drawIntervalSpeed);
 
-            // TO DO: Figure out how to remove listener.
+            // TO DO: Figure out how to remove initializeGame listener?
         });
 
-        SocketIO.socket.on('intervalUpdate', function(hb, clients, enemys) {
-            SocketIO.HomeBase = hb;
+        SocketIO.socket.on('intervalUpdate', function(center, clients, enemys) {
+            SocketIO.Center = center;
             SocketIO.clientList = clients;
             SocketIO.enemyList = enemys;
         });
