@@ -52,6 +52,11 @@ let SocketIO = {
             }
         });
 
+        SocketIO.socket.on('updateGmResources', function(resources, income) {
+            Gm.resources = resources;
+            Gm.income = income;
+        });
+
         SocketIO.socket.on('gameOver', function() {
             Canvas.gameOver = true;
         });

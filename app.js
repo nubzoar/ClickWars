@@ -89,6 +89,7 @@ io.on('connection', function(socket) {
 
     console.log('A user connected! ID: ' + socket.id);
     let client = new Client.create(socket.id);
+    Engine.Gm.updateBaseIncome();
 
     //console.log("Client.list: " + Client.list + ", socket.id: " + socket.id + ", Engine.Canvas: " + Engine.Canvas);
     socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
@@ -130,11 +131,20 @@ io.on('connection', function(socket) {
             Enemy.move();
             io.emit('intervalUpdate', Center, Client.list, Enemy.list);
 
-            if (Center.health <= 0) {
-                clearInterval(Engine.serverIntervalId);
-                io.emit('gameOver');
-            }
+            // if (Center.health <= 0) {
+            //     clearInterval(Engine.serverIntervalId);
+            //     io.emit('gameOver');
+            // }
         }, Engine.serverIntervalSpeed);
+    }
+
+    // 
+    if (!Engine.Gm.intervalId) {
+        console.log("GM update interval started!");
+        Engine.Gm.intervalId = setInterval(function() {
+            Engine.Gm.resourceUpdate();
+            io.sockets.connected[Client.list[0].id].emit('updateGmResources', Engine.Gm.resources, Engine.Gm.calcIncome());
+        }, Engine.Gm.intervalSpeed);
     }
 
     // Temporary enemy creation for testing purposes.
@@ -148,6 +158,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log('A user disconnected! ID: ' + socket.id);
         Client.remove(socket.id);
+        Engine.Gm.updateBaseIncome();
         io.emit('updateGm', Client.list, Client.list[0].id);
     });
 });

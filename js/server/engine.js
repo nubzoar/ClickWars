@@ -1,3 +1,5 @@
+let Client = require('./client.js');
+
 let Engine = {
 
     serverIntervalId: null,
@@ -14,6 +16,27 @@ let Engine = {
         drawIntervalSpeed: 10,
 
         colorList: ['Black', 'Blue', 'Red', 'Green', 'Orange', 'Pink', 'Cyan', 'Purple', 'Gold', 'Grey', 'LightBlue', 'DarkGreen', 'Brown']
+    },
+
+    Gm: {
+        resources: 0,
+        baseIncome: Client.list.length * 10,
+        extraIncome: 0,
+
+        calcIncome: function () {
+            return this.baseIncome + this.extraIncome;
+        },
+
+        updateBaseIncome: function() {
+            this.baseIncome = Client.list.length * 10;
+        },
+
+        resourceUpdate: function() {
+            this.resources += this.calcIncome();
+        },
+
+        intervalId: NaN,
+        intervalSpeed: 1000
     },
 
     getDistance: function(x1, x2, y1, y2) {
