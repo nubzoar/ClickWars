@@ -52,8 +52,9 @@ let SocketIO = {
             }
         });
 
-        SocketIO.socket.on('updateGmResources', function(resources, income) {
+        SocketIO.socket.on('updateGmResources', function(resources, resourceCap, income) {
             Gm.resources = resources;
+            Gm.resourceCap = resourceCap;
             Gm.income = income;
         });
 

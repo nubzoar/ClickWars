@@ -30,8 +30,9 @@ let Player = {
 
     onClickRemoveEnemy: function() {
         SocketIO.enemyList.map(function(enemy, index) {
+            
             // Circle collision detection
-            let distance = Math.sqrt( Math.pow(Player.x - enemy.x, 2) + Math.pow(Player.y - enemy.y, 2) );
+            let distance = Math.sqrt( (Player.x - enemy.x) * (Player.x - enemy.x) + (Player.y - enemy.y) * (Player.y - enemy.y) );
             if (distance <= enemy.radius * 1.5) {
                 SocketIO.removeEnemy(enemy.id);
             }

@@ -12,64 +12,96 @@ let Enemy = {
 
     list: [],
 
-    createBasic: function() {
-        this.id = Enemy.idGen();
-        this.type = "basic";
-        this.color = "red";
+    inherit: function(obj) {
+        obj.id = Enemy.idGen();
 
         let pos = Enemy.getRandomEdgePos();
-        this.x = pos[0];
-        this.y = pos[1];
+        obj.x = pos[0];
+        obj.y = pos[1];
 
+        obj.getDistanceTo = function(tx, ty) {
+            return Engine.getDistance(this.x, tx, this.y, ty) - this.radius / 2;
+        }
+
+        obj.updateDistanceTo = function(tx, ty) {
+            this.distance = this.getDistanceTo(tx, ty);
+        }
+        obj.updateDistanceTo(Center.x, Center.y);
+
+        obj.decrementHealth = function(amount) {
+            this.health -= amount;
+            if (this.health <= 0) {
+                Enemy.removeById(this.id);
+            }
+        }
+    },
+
+    createBasic: function() {
+        this.type = "basic";
+        this.color = "red";
         this.speed = 1;
-        this.distance = -1;
-        Enemy.setMoveType.Basic(this);
-
         this.radius = 10;
+        this.health = 2;
+
+        Enemy.inherit(this);
+        Enemy.setMoveType.Basic(this);
 
         Enemy.list.push(this);
     },
 
     createFast: function() {
-        this.id = Enemy.idGen();
-        this.type = "basic";
+        this.type = "fast";
         this.color = "purple";
-
-        let pos = Enemy.getRandomEdgePos();
-        this.x = pos[0];
-        this.y = pos[1];
-
         this.speed = 4;
-        this.distance = -1;
+        this.radius = 14;
+        this.health = 1;
+
+        Enemy.inherit(this);
         Enemy.setMoveType.Basic(this);
 
-        this.radius = 12;
-
         Enemy.list.push(this);
+    },
+
+    createEnemy: function(type) {
+        let cost = NaN;
+
+        switch (type) {
+            case "createBasic":
+                cost = 40;
+                break;
+            case "createFast":
+                cost = 120;
+                break;
+        }
+
+        if (typeof cost != NaN && Engine.Gm.resources >= cost) {
+            Engine.Gm.spendResources(cost);
+            Engine.Gm.addIncome(cost / 20);
+            let enemy = new Enemy[type];
+        }
     },
 
     move: function() {
         Enemy.list.map(function(enemy, index) {
 
-            // Calculate the distance to the center.
-            enemy.distance = Engine.getDistance(enemy.x, Center.x, enemy.y, Center.y) - enemy.radius / 2;
+            // Move enemy
+            enemy.move();
+
+            // Update enemy distance to the center.
+            enemy.updateDistanceTo(Center.x, Center.y);
 
             // Circle collision detection
             if (enemy.distance <= Center.size) {
                 Enemy.removeById(enemy.id);
                 Center.health--;
             }
-
-            // Move enemy
-            enemy.move();
-
         });
     },
 
-    hurtEnemy: function(id) {
+    hurtEnemy: function(id, amount) {
         Enemy.list.some(function(enemy, index) {
             if (enemy.id === id) {
-                enemy.health--;
+                enemy.decrementHealth(amount);
                 return true;
             }
         });

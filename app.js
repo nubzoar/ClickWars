@@ -103,6 +103,10 @@ io.on('connection', function(socket) {
         });
     });
 
+    socket.on('createEnemy', function(type) {
+        Enemy.createEnemy(type);
+    });
+
     socket.on('createBasicEnemy', function() {
         let enemy = new Enemy.createBasic();
     });
@@ -130,20 +134,19 @@ io.on('connection', function(socket) {
         Engine.serverIntervalId = setInterval(function () {
             Enemy.move();
             io.emit('intervalUpdate', Center, Client.list, Enemy.list);
+            io.sockets.connected[Client.list[0].id].emit('updateGmResources', Engine.Gm.resources, Engine.Gm.resourceCap, Engine.Gm.calcIncome());
 
-            // if (Center.health <= 0) {
-            //     clearInterval(Engine.serverIntervalId);
-            //     io.emit('gameOver');
-            // }
+            if (Center.health <= 0) {
+                clearInterval(Engine.serverIntervalId);
+                io.emit('gameOver');
+            }
         }, Engine.serverIntervalSpeed);
     }
 
-    // 
     if (!Engine.Gm.intervalId) {
         console.log("GM update interval started!");
         Engine.Gm.intervalId = setInterval(function() {
             Engine.Gm.resourceUpdate();
-            io.sockets.connected[Client.list[0].id].emit('updateGmResources', Engine.Gm.resources, Engine.Gm.calcIncome());
         }, Engine.Gm.intervalSpeed);
     }
 
@@ -160,6 +163,10 @@ io.on('connection', function(socket) {
         Client.remove(socket.id);
         Engine.Gm.updateBaseIncome();
         io.emit('updateGm', Client.list, Client.list[0].id);
+        if (Client.list.length <= 0) {
+            clearInterval(Engine.serverIntervalId);
+            Engine.serverIntervalId = NaN;
+        }
     });
 });
 

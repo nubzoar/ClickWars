@@ -25,7 +25,7 @@ main {
 }
 
 #gmCmds {
-    width: 350px;
+    width: 480px;
     display: block;
     position: relative;
     padding-top: 20px;
@@ -43,7 +43,7 @@ button.cmdBtn {
     border: 2px solid darkgreen;
     border-radius: 4px;
     height: 50px;
-    width: 100px;
+    width: 140px;
     font: bold 1.1em/1.1em Georgia, serif;
     color: black;
     margin-right: 5px;

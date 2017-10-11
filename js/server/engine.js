@@ -19,9 +19,17 @@ let Engine = {
     },
 
     Gm: {
+
         resources: 0,
-        baseIncome: Client.list.length * 10,
+        resourceCap: NaN,
+
+        baseIncome: NaN,
         extraIncome: 0,
+
+        addIncome: function(amount) {
+            this.extraIncome += amount;
+            this.updateBaseIncome();
+        },
 
         calcIncome: function () {
             return this.baseIncome + this.extraIncome;
@@ -29,10 +37,17 @@ let Engine = {
 
         updateBaseIncome: function() {
             this.baseIncome = Client.list.length * 10;
+            this.resourceCap = this.calcIncome() * 8;
         },
 
         resourceUpdate: function() {
-            this.resources += this.calcIncome();
+            if (this.resources < this.resourceCap) {
+                this.resources += this.calcIncome();
+            }
+        },
+
+        spendResources: function(amount) {
+            this.resources -= amount;
         },
 
         intervalId: NaN,
@@ -40,7 +55,7 @@ let Engine = {
     },
 
     getDistance: function(x1, x2, y1, y2) {
-        return Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
+        return Math.sqrt( (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) )
     },
 
     // Minimum is inclusive, maximum is exclusive.
