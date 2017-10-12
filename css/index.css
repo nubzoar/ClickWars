@@ -38,6 +38,12 @@ main {
     vertical-align: middle;
 }
 
+#startBtn {
+    display: block;
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
 button.cmdBtn {
     background-color: green;
     border: 2px solid darkgreen;

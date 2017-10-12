@@ -89,13 +89,46 @@ io.on('connection', function(socket) {
 
     console.log('A user connected! ID: ' + socket.id);
     let client = new Client.create(socket.id);
-    Engine.Gm.updateBaseIncome();
+    socket.emit('initView', Engine.Canvas, socket.id, Client.playerList, Client.gmId, Center);
 
-    //console.log("Client.list: " + Client.list + ", socket.id: " + socket.id + ", Engine.Canvas: " + Engine.Canvas);
-    socket.emit('initializeGame', Client.list, socket.id, Engine.Canvas);
+    socket.on('playGame', function() {
+
+        Client.moveToPlayerList(socket.id);
+        Client.updateGm();
+        socket.emit('initGame', Client.playerList, Client.gmId);
+        Engine.Gm.updateBaseIncome();
+
+        if (!Engine.serverIntervalId) {
+            console.log("Engine interval started!");
+            Engine.serverIntervalId = setInterval(function() {
+                Enemy.move();
+                io.emit('intervalUpdate', Center, Client.playerList, Enemy.list);
+                io.sockets.connected[Client.gmId].emit('updateGmResources', Engine.Gm.resources, Engine.Gm.resourceCap, Engine.Gm.calcIncome());
+                // if (Center.health <= 0) {
+                //     clearInterval(Engine.serverIntervalId);
+                //     io.emit('gameOver');
+                // }
+            }, Engine.serverIntervalSpeed, io);
+        }
+
+        if (!Engine.Gm.intervalId) {
+            console.log("GM update interval started!");
+            Engine.Gm.intervalId = setInterval(function() {
+                Engine.Gm.resourceUpdate();
+            }, Engine.Gm.intervalSpeed);
+        }
+
+        // Temporary enemy creation for testing purposes.
+        if (!Engine.enemyTestingId) {
+            console.log("Enemy testing interval started!");
+            Engine.enemyTestingId = setInterval(function() {
+                let enemy = new Enemy.createBasic();
+            }, 3000);
+        }
+    });
 
     socket.on('clientMovement', function(x, y) {
-        Client.list.map(function(client) {
+        Client.playerList.map(function(client) {
             if (client.id === socket.id) {
                 client.mouseX = x;
                 client.mouseY = y;
@@ -103,67 +136,36 @@ io.on('connection', function(socket) {
         });
     });
 
+    socket.on('removeEnemy', function(id) {
+        Enemy.removeById(id);
+    });
+
     socket.on('createEnemy', function(type) {
         Enemy.createEnemy(type);
-    });
-
-    socket.on('createBasicEnemy', function() {
-        let enemy = new Enemy.createBasic();
-    });
-
-    socket.on('createFastEnemy', function() {
-        let enemy = new Enemy.createFast();
     });
 
     socket.on('hurtEnemy', function(id) {
         Enemy.hurtEnemy(id);
     });
 
-    socket.on('removeEnemy', function(id) {
-        Enemy.removeById(id);
-    });
-
     socket.on('setGmId', function() {
         console.log("Recieve command to change GM from ID: " + socket.id);
         Client.setGm(socket.id);
-        io.emit('updateGm', Client.list, socket.id);
+        io.emit('updateGm', Client.playerList, socket.id);
     });
-
-    if (!Engine.serverIntervalId) {
-        console.log("Engine interval started!");
-        Engine.serverIntervalId = setInterval(function () {
-            Enemy.move();
-            io.emit('intervalUpdate', Center, Client.list, Enemy.list);
-            io.sockets.connected[Client.list[0].id].emit('updateGmResources', Engine.Gm.resources, Engine.Gm.resourceCap, Engine.Gm.calcIncome());
-
-            if (Center.health <= 0) {
-                clearInterval(Engine.serverIntervalId);
-                io.emit('gameOver');
-            }
-        }, Engine.serverIntervalSpeed);
-    }
-
-    if (!Engine.Gm.intervalId) {
-        console.log("GM update interval started!");
-        Engine.Gm.intervalId = setInterval(function() {
-            Engine.Gm.resourceUpdate();
-        }, Engine.Gm.intervalSpeed);
-    }
-
-    // Temporary enemy creation for testing purposes.
-    if (!Engine.enemyTestingId) {
-        console.log("Enemy testing interval started!");
-        Engine.enemyTestingId = setInterval(function() {
-            let enemy = new Enemy.createBasic();
-        }, 3000);
-    }
 
     socket.on('disconnect', function() {
         console.log('A user disconnected! ID: ' + socket.id);
-        Client.remove(socket.id);
-        Engine.Gm.updateBaseIncome();
-        io.emit('updateGm', Client.list, Client.list[0].id);
-        if (Client.list.length <= 0) {
+        let clientList = Client.findList(socket.id);
+        Client.remove(socket.id, clientList);
+        Client.updateGm();
+
+        if (clientList == "playerList" && Client.playerList.length > 0) {
+            Engine.Gm.updateBaseIncome();
+            io.emit('updateGm', Client.playerList, Client.gmId);
+        }
+        
+        if ( Client.playerList.length <= 0 && !isNaN(Engine.serverIntervalId) ) {
             clearInterval(Engine.serverIntervalId);
             Engine.serverIntervalId = NaN;
         }

@@ -10,14 +10,33 @@ let SocketIO = {
 
     init: function() {
 
-        SocketIO.socket.on('initializeGame', function(clients, id, canvas) {
-            SocketIO.clientList = clients;
-            SocketIO.gmClientId = SocketIO.clientList[0].id;
-            SocketIO.ownClientId = id;
-            
-            SocketIO.loadCanvas(canvas);
+        SocketIO.socket.on('initView', function(canvas, id, clients, gmId, center) {
 
+            SocketIO.ownClientId = id;
+            SocketIO.clientList = clients;
+            SocketIO.Center = center;
+
+            if (clients.length > 0) {
+                SocketIO.gmClientId = gmId;
+            }
+
+            SocketIO.loadCanvas(canvas);
             Canvas.init();
+
+            let startBtn = Canvas.createButton('startBtn', 'cmdBtn', 'Join Game',
+            function() {
+                SocketIO.socket.emit('playGame');
+            });
+
+            document.getElementsByTagName('main')[0].appendChild(startBtn);
+        });
+
+        SocketIO.socket.on('initGame', function(clients, gmId) {
+
+            document.getElementsByTagName('main')[0].removeChild( document.getElementById('startBtn') );
+
+            SocketIO.clientList = clients;
+            SocketIO.gmClientId = gmId;
 
             if (SocketIO.isGm()) {
                 Gm.init();
@@ -25,10 +44,7 @@ let SocketIO = {
                 Player.init();
             }
 
-            Canvas.draw();
-            //Canvas.drawIntervalId = setInterval(Canvas.draw, Canvas.drawIntervalSpeed);
-
-            // TO DO: Figure out how to remove initializeGame listener?
+            // TO DO: Figure out how to remove initializeGame and initView listener?
         });
 
         SocketIO.socket.on('intervalUpdate', function(center, clients, enemys) {
@@ -37,16 +53,17 @@ let SocketIO = {
             SocketIO.enemyList = enemys;
         });
 
-        SocketIO.socket.on('updateGm', function(clients, gm) {
+        SocketIO.socket.on('updateGm', function(clients, gmId) {
             let wasGm = SocketIO.isGm()
 
             SocketIO.clientList = clients;
-            SocketIO.gmClientId = gm;
+            SocketIO.gmClientId = gmId;
 
             if (!wasGm && SocketIO.isGm()) {
                 Player.deInit();
                 Gm.init();
-            } else if (wasGm && !SocketIO.isGm()) {
+            }
+            else if (wasGm && !SocketIO.isGm()) {
                 Gm.deInit();
                 Player.init();
             }

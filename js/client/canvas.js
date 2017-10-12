@@ -26,6 +26,7 @@ let Canvas = {
     
         document.getElementsByTagName('body')[0].onresize = Canvas.getOffsets;
         Canvas.getOffsets();
+        Canvas.draw();
     },
 
     getOffsets: function() {
@@ -99,5 +100,14 @@ let Canvas = {
         ctx.fillStyle = "red";
         let textMetrics = ctx.measureText("Game Over");
         ctx.fillText("Game Over", SocketIO.Center.x - (textMetrics.width / 2), SocketIO.Center.y + 12);
+    },
+
+    createButton: function(id, className, text, f) {
+        let btn = document.createElement('button');
+        btn.id = id;
+        btn.className = className;
+        btn.onclick = f;
+        btn.appendChild(document.createTextNode(text));
+        return btn;
     }
 }

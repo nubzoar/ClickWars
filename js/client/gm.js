@@ -18,8 +18,16 @@ let Gm = {
         resourceEle.innerHTML = 'Resources: ' + Gm.resources + '<br />Income: ' + Gm.income;
         gmCmdsEle.appendChild(resourceEle);
 
-        gmCmdsEle.appendChild(Gm.createButton('createBasic', 'Spawn Basic (40)'));
-        gmCmdsEle.appendChild(Gm.createButton('createFast', 'Spawn Fast (120)'));
+        gmCmdsEle.appendChild( Canvas.createButton('createBasic', 'cmdBtn', 'Spawn Basic (40)',
+            function() {
+                SocketIO.socket.emit('createEnemy', 'createBasic');
+            }
+        ) );
+        gmCmdsEle.appendChild( Canvas.createButton('createFast', 'cmdBtn', 'Spawn Fast (120)',
+            function() {
+                SocketIO.socket.emit('createEnemy', 'createBasic');
+            }
+        ) );
 
         setInterval(Gm.updateButtons, 20);
     },
@@ -31,18 +39,6 @@ let Gm = {
     deInit: function() {
         let gmCmds = document.getElementById('gmCmds')
         document.getElementsByTagName('body')[0].removeChild(gmCmds);
-    },
-
-    createButton: function(enemyType, text) {
-        let btn = document.createElement('button');
-        btn.id = enemyType;
-        btn.className = 'cmdBtn';
-        btn.onclick = function() {
-            SocketIO.socket.emit('createEnemy', enemyType);
-        }
-        let txtNode = document.createTextNode(text);
-        btn.appendChild(txtNode);
-        return btn;
     },
 
     disableButton: function(button) {

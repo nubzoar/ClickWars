@@ -36,13 +36,16 @@ let Engine = {
         },
 
         updateBaseIncome: function() {
-            this.baseIncome = Client.list.length * 10;
+            this.baseIncome = (Client.playerList.length - 1) * 20;
             this.resourceCap = this.calcIncome() * 8;
         },
 
         resourceUpdate: function() {
             if (this.resources < this.resourceCap) {
                 this.resources += this.calcIncome();
+                if (this.resources > this.resourceCap) {
+                    this.resources = this.resourceCap;
+                }
             }
         },
 
