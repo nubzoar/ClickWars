@@ -108,7 +108,7 @@ io.on('connection', function(socket) {
                 //     clearInterval(Engine.serverIntervalId);
                 //     io.emit('gameOver');
                 // }
-            }, Engine.serverIntervalSpeed, io);
+            }, Engine.serverIntervalSpeed);
         }
 
         if (!Engine.Gm.intervalId) {
@@ -158,16 +158,17 @@ io.on('connection', function(socket) {
         console.log('A user disconnected! ID: ' + socket.id);
         let clientList = Client.findList(socket.id);
         Client.remove(socket.id, clientList);
+
+        if ( Client.playerList.length <= 0 && !isNaN(Engine.serverIntervalId) ) {
+            clearInterval(Engine.serverIntervalId);
+            Engine.serverIntervalId = NaN;
+        }
+
         Client.updateGm();
 
         if (clientList == "playerList" && Client.playerList.length > 0) {
             Engine.Gm.updateBaseIncome();
             io.emit('updateGm', Client.playerList, Client.gmId);
-        }
-        
-        if ( Client.playerList.length <= 0 && !isNaN(Engine.serverIntervalId) ) {
-            clearInterval(Engine.serverIntervalId);
-            Engine.serverIntervalId = NaN;
         }
     });
 });

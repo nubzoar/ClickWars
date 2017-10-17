@@ -25,7 +25,7 @@ let Gm = {
         ) );
         gmCmdsEle.appendChild( Canvas.createButton('createFast', 'cmdBtn', 'Spawn Fast (120)',
             function() {
-                SocketIO.socket.emit('createEnemy', 'createBasic');
+                SocketIO.socket.emit('createEnemy', 'createFast');
             }
         ) );
 
